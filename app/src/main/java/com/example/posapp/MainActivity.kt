@@ -29,90 +29,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.posapp.ui.theme.POSAPPTheme
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var airPlainModeReceiver: AirPlaneModeReceiver
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             POSAPPTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                AppNavigation()
             }
         }
 
-        // Initialize and register
-        airPlainModeReceiver = AirPlaneModeReceiver()
-        val intentFilter = IntentFilter().apply {
-            addAction(Intent.ACTION_SCREEN_ON)
-            addAction(Intent.ACTION_SCREEN_OFF)
-        }
-        registerReceiver(airPlainModeReceiver, intentFilter)
-    }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d("Destroing the app", "App being destroyed")
-        unregisterReceiver(airPlainModeReceiver)
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Scaffold (
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text("Testing")
-                },
-                navigationIcon = {
-                    IconButton(onClick = {}) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Arrow Back")
-                    }
-                },
-                actions = {
-                    IconButton(onClick = {}) {
-                        Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
-                    }
-                }
-            )
-        }
-    ) {
-    innerPadding -> MainContent(modifier = Modifier.padding(innerPadding))
     }
 }
 
 @Composable
-fun MainContent(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    Column (modifier = modifier.padding(10.dp)) {
+fun AppNavigation() {
+    val navController = rememberNavController()
 
-        Text("This is the start of the service, its for testing purposes")
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        OutlinedButton(onClick = {
-            val serviceIntent = Intent(context, CountDownService::class.java)
-            context.startService(serviceIntent)
-        }, modifier = Modifier.fillMaxWidth()) {
-            Text("Start service")
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    POSAPPTheme {
-        Greeting("Android")
+    NavHost(navController = navController, startDestination = "login") {
+        composable("login") { Login(navController) }
+        composable("forgot password") { ForgotPassword(navController) }
+        composable("signup") { SignUp(navController) }
     }
 }
