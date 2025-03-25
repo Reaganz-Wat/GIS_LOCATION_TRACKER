@@ -58,5 +58,6 @@ fun AppNavigation() {
         composable("login") { Login(navController) }
         composable("forgot password") { ForgotPassword(navController) }
         composable("signup") { SignUp(navController) }
+        composable("maindashboard") {Dashboard(navController)}
     }
 }

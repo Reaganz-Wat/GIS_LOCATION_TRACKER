@@ -189,7 +189,7 @@ fun LoginContent(modifier: Modifier = Modifier, navController: NavHostController
             // Login Button
             Button(
                 onClick = {
-                    navController.navigate("sosMessaging")
+                    navController.navigate("maindashboard")
                 },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
