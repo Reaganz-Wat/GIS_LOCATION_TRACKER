@@ -109,7 +109,7 @@ fun LoginContent(modifier: Modifier = Modifier, navController: NavHostController
 
             // Login Header
             Text(
-                text = "Login to SOS Security Alert",
+                text = "Login to GEO TRAFFIC",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
@@ -118,7 +118,7 @@ fun LoginContent(modifier: Modifier = Modifier, navController: NavHostController
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Stay safe with real-time security alerts",
+                text = "Stay safe with real-time location alerts",
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 textAlign = TextAlign.Center
