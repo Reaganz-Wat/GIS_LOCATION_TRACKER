@@ -58,4 +58,11 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation ("androidx.navigation:navigation-compose:2.7.0")
+
+    // OkhttpClient for making request
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    // Google Location Dependency
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+
 }

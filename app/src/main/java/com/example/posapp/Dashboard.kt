@@ -52,7 +52,7 @@ fun Dashboard(navHostController: NavHostController) {
             AccidentReportingCard(
                 onReportClick = {
                     // Navigate to accident report screen
-                    navHostController.navigate("report_accident")
+                    navHostController.navigate("addIncident")
                 }
             )
 
