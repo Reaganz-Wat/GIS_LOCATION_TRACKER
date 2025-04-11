@@ -1,8 +1,10 @@
 package com.example.posapp
 
+import android.app.Application
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,7 +42,9 @@ data class IncidentFormState @RequiresApi(Build.VERSION_CODES.O) constructor(
     val showCityDropdown: Boolean = false  // Added flag for city dropdown
 )
 
-class IncidentReportViewModel : ViewModel() {
+class IncidentReportViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val repository = IncidentRepository(application.applicationContext)
 
     @RequiresApi(Build.VERSION_CODES.O)
     private val _formState = MutableStateFlow(IncidentFormState())
@@ -251,20 +255,51 @@ class IncidentReportViewModel : ViewModel() {
         }
     }
 
+//    @RequiresApi(Build.VERSION_CODES.O)
+//    fun submitForm() {
+//        viewModelScope.launch {
+//            _formState.update { it.copy(isSubmitting = true, errorMessage = null) }
+//
+//            try {
+//                // Here you will implement your repository call to save the data
+//                // For now, we'll simulate a successful submission after a delay
+//                saveIncidentToDatabase()
+//
+//                // Simulate API call delay
+//                kotlinx.coroutines.delay(1500)
+//
+//                _formState.update { it.copy(isSubmitting = false, isSuccess = true) }
+//            } catch (e: Exception) {
+//                _formState.update {
+//                    it.copy(
+//                        isSubmitting = false,
+//                        errorMessage = e.message ?: "An unknown error occurred"
+//                    )
+//                }
+//            }
+//        }
+//    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun submitForm() {
         viewModelScope.launch {
             _formState.update { it.copy(isSubmitting = true, errorMessage = null) }
 
             try {
-                // Here you will implement your repository call to save the data
-                // For now, we'll simulate a successful submission after a delay
-                saveIncidentToDatabase()
+                // Call repository to submit the form
+                val result = repository.submitIncidentReport(formState.value)
 
-                // Simulate API call delay
-                kotlinx.coroutines.delay(1500)
-
-                _formState.update { it.copy(isSubmitting = false, isSuccess = true) }
+                if (result.isSuccess) {
+                    _formState.update { it.copy(isSubmitting = false, isSuccess = true) }
+                } else {
+                    val exception = result.exceptionOrNull() ?: Exception("Unknown error occurred")
+                    _formState.update {
+                        it.copy(
+                            isSubmitting = false,
+                            errorMessage = exception.message ?: "An unknown error occurred"
+                        )
+                    }
+                }
             } catch (e: Exception) {
                 _formState.update {
                     it.copy(

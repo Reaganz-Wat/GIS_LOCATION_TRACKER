@@ -148,6 +148,7 @@ fun TrafficIncidentForm(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+
             // Form header
             Text(
                 text = "Road Traffic Data Tool",
