@@ -2,6 +2,7 @@ package com.example.posapp
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.*
@@ -21,7 +22,7 @@ class IncidentRepository(private val context: Context) {
         .writeTimeout(30, TimeUnit.SECONDS)
         .build()
 
-    private val baseUrl = "YOUR_BASE_API_URL" // Replace with your actual API base URL
+    private val baseUrl = "http://192.168.233.141/geotrafficbackend/api.php" // Replace with your actual API base URL
 
     suspend fun submitIncidentReport(formState: IncidentFormState): Result<String> {
         return withContext(Dispatchers.IO) {
@@ -31,7 +32,7 @@ class IncidentRepository(private val context: Context) {
 
                 // Create request
                 val request = Request.Builder()
-                    .url("$baseUrl/incidents")
+                    .url("$baseUrl")
                     .post(requestBody)
                     .build()
 
@@ -39,6 +40,7 @@ class IncidentRepository(private val context: Context) {
                 val response = executeRequest(request)
 
                 if (response.isSuccessful) {
+                    response.body?.let { Log.d("Body of the responsessss", it.string()) }
                     Result.success("Incident reported successfully")
                 } else {
                     val errorBody = response.body?.string() ?: "Unknown error occurred"
@@ -65,6 +67,8 @@ class IncidentRepository(private val context: Context) {
             .addFormDataPart("street", formState.street)
             .addFormDataPart("incidentType", formState.incidentType)
             .addFormDataPart("incidentDetails", formState.incidentDetails)
+            .addFormDataPart("other_street", formState.otherStreet)
+            .addFormDataPart("action", "create_incident")
 
         // Add conditional fields
         if (formState.street == "Others") {
