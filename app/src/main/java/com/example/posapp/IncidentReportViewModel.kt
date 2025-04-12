@@ -334,7 +334,9 @@ class IncidentReportViewModel(application: Application) : AndroidViewModel(appli
     }
 
 
-    fun register(username: String, email: String, password: String, contact: String) = viewModelScope.launch {
-        repository.registerUser(username, email, password, contact)
+    suspend fun register(username: String, email: String, password: String, contact: String): Result<String> {
+        return withContext(Dispatchers.IO) {
+            repository.registerUser(username, email, password, contact)
+        }
     }
 }

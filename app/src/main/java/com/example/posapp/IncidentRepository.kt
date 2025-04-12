@@ -150,8 +150,8 @@ class IncidentRepository(private val context: Context) {
 
     suspend fun registerUser(
         username: String,
-        password: String,
         email: String,
+        password: String,
         contact: String
     ): Result<String> = withContext(Dispatchers.IO) {
         try {
