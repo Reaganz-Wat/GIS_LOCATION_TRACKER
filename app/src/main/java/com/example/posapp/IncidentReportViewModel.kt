@@ -7,11 +7,13 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -323,5 +325,16 @@ class IncidentReportViewModel(application: Application) : AndroidViewModel(appli
                 datetime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
             )
         }
+    }
+
+    suspend fun login(email: String, password: String): Result<String> {
+        return withContext(Dispatchers.IO) {
+            repository.loginUser(email, password)
+        }
+    }
+
+
+    fun register(username: String, email: String, password: String, contact: String) = viewModelScope.launch {
+        repository.registerUser(username, email, password, contact)
     }
 }

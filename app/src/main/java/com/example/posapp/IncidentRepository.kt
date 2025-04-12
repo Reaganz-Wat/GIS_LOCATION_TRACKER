@@ -22,7 +22,7 @@ class IncidentRepository(private val context: Context) {
         .writeTimeout(30, TimeUnit.SECONDS)
         .build()
 
-    private val baseUrl = "http://192.168.233.141/geotrafficbackend/api.php" // Replace with your actual API base URL
+    private val baseUrl = "http://192.168.100.235/geotrafficbackend/api.php" // Replace with your actual API base URL
 
     suspend fun submitIncidentReport(formState: IncidentFormState): Result<String> {
         return withContext(Dispatchers.IO) {
@@ -111,4 +111,81 @@ class IncidentRepository(private val context: Context) {
             }
         })
     }
+
+
+
+    suspend fun loginUser(
+        email: String,
+        password: String
+    ): Result<String> = withContext(Dispatchers.IO) {
+        try {
+            // Create form body request instead of JSON
+            val formBody = FormBody.Builder()
+                .add("action", "login")
+                .add("username", email)
+                .add("password", password)
+                .build()
+
+            val request = Request.Builder()
+                .url(baseUrl)
+                .post(formBody)
+                .build()
+
+            val response = executeRequest(request)
+
+            val responseBody = response.body?.string()
+            Log.d("Login Response", responseBody ?: "No response body")
+
+            if (response.isSuccessful) {
+                Result.success(responseBody ?: "No response body")
+            } else {
+                Result.failure(Exception("Error: ${response.code} ${response.message}"))
+            }
+
+        } catch (e: Exception) {
+            Log.e("Login Error", "Exception: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+    suspend fun registerUser(
+        username: String,
+        password: String,
+        email: String,
+        contact: String
+    ): Result<String> = withContext(Dispatchers.IO) {
+        try {
+            // Create form body request instead of JSON
+            val formBody = FormBody.Builder()
+                .add("action", "register")
+                .add("username", username)
+                .add("password", password)
+                .add("email", email)
+                .add("contact", contact)
+                .build()
+
+            val request = Request.Builder()
+                .url(baseUrl)
+                .post(formBody)
+                .build()
+
+            val response = executeRequest(request)
+
+            val responseBody = response.body?.string()
+            Log.d("Register Response", responseBody ?: "No response body")
+
+            if (response.isSuccessful) {
+                Result.success(responseBody ?: "No response body")
+            } else {
+                Result.failure(Exception("Error: ${response.code} ${response.message}"))
+            }
+
+        } catch (e: Exception) {
+            Log.e("Register Error", "Exception: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+
+
 }

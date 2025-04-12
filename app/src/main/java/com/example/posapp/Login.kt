@@ -1,5 +1,7 @@
 package com.example.posapp
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,14 +37,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -52,9 +54,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.navigation.NavHost
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.launch
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
@@ -71,11 +73,13 @@ fun Login(navController: NavHostController) {
 }
 
 @Composable
-fun LoginContent(modifier: Modifier = Modifier, navController: NavHostController) {
+fun LoginContent(modifier: Modifier = Modifier, navController: NavHostController, viewModel: IncidentReportViewModel = viewModel()) {
     // States
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    val coroutine = rememberCoroutineScope()
+    val context = LocalContext.current
 
     Box(
         modifier = modifier
@@ -190,7 +194,28 @@ fun LoginContent(modifier: Modifier = Modifier, navController: NavHostController
             // Login Button
             Button(
                 onClick = {
-                    navController.navigate("maindashboard")
+                    coroutine.launch {
+                        val login_response = viewModel.login(email, password)
+                        Log.d("Login response: ", login_response.toString())
+
+                        login_response.fold(
+                            onSuccess = { responseBody ->
+                                // Parse the responseBody to determine if login was successful
+                                if (responseBody.contains("success") || responseBody.contains("authenticated")) {
+                                    Log.d("Login", "Authentication successful")
+                                    navController.navigate("maindashboard")
+                                } else {
+                                    Log.d("Login", "Authentication failed: $responseBody")
+                                    Toast.makeText(context, "Invalid email or password", Toast.LENGTH_SHORT).show()
+                                    // Show error message to user
+                                }
+                            },
+                            onFailure = { exception ->
+                                Log.e("Login", "Error: ${exception.message}")
+                                // Show error message to user
+                            }
+                        )
+                    }
                 },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
