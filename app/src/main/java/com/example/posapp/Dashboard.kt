@@ -1,5 +1,6 @@
 package com.example.posapp
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -14,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -111,6 +113,7 @@ fun AccidentReportingCard(onReportClick: () -> Unit) {
 
 @Composable
 fun QuickActionButtons(navHostController: NavHostController) {
+    val context = LocalContext.current
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -120,14 +123,18 @@ fun QuickActionButtons(navHostController: NavHostController) {
             title = "View Map",
             backgroundColor = Color(0xFF4CAF50),
             modifier = Modifier.weight(1f),
-            onClick = { navHostController.navigate("accident_map") }
+            onClick = {
+                Toast.makeText(context, "Feature coming soon", Toast.LENGTH_SHORT).show()
+            }
         )
         QuickActionButton(
             icon = Icons.Filled.List,
             title = "My Reports",
             backgroundColor = Color(0xFF2196F3),
             modifier = Modifier.weight(1f),
-            onClick = { navHostController.navigate("my_reports") }
+            onClick = {
+                Toast.makeText(context, "Features coming soon", Toast.LENGTH_SHORT).show()
+            }
         )
     }
 }
