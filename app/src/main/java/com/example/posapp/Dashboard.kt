@@ -50,10 +50,10 @@ fun Dashboard(navHostController: NavHostController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Accident Reporting Section
-            AccidentReportingCard(
+            // Incident Reporting Section
+            IncidentReportingCard(
                 onReportClick = {
-                    // Navigate to accident report screen
+                    // Navigate to Incident report screen
                     navHostController.navigate("addIncident")
                 }
             )
@@ -68,7 +68,7 @@ fun Dashboard(navHostController: NavHostController) {
 }
 
 @Composable
-fun AccidentReportingCard(onReportClick: () -> Unit) {
+fun IncidentReportingCard(onReportClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -87,7 +87,7 @@ fun AccidentReportingCard(onReportClick: () -> Unit) {
         ) {
             Column {
                 Text(
-                    text = "Report an Accident",
+                    text = "Report an Incident",
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -99,7 +99,7 @@ fun AccidentReportingCard(onReportClick: () -> Unit) {
             }
             Icon(
                 imageVector = ImageVector.vectorResource(R.drawable.baseline_add_location_24),
-                contentDescription = "Report Accident",
+                contentDescription = "Report Incident",
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape)
@@ -188,7 +188,7 @@ fun RecentReportsSummary() {
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
-                text = "Recent Accident Reports",
+                text = "Recent Incident Reports",
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

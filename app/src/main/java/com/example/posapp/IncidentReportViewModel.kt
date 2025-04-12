@@ -1,12 +1,24 @@
 package com.example.posapp
 
+import android.Manifest
 import android.app.Application
+import android.content.pm.PackageManager
+import android.location.Geocoder
+import android.location.Location
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresPermission
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,6 +28,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
 data class IncidentFormState @RequiresApi(Build.VERSION_CODES.O) constructor(
@@ -52,6 +65,13 @@ class IncidentReportViewModel(application: Application) : AndroidViewModel(appli
     private val _formState = MutableStateFlow(IncidentFormState())
     @RequiresApi(Build.VERSION_CODES.O)
     val formState: StateFlow<IncidentFormState> = _formState.asStateFlow()
+
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var locationCallback: LocationCallback? = null
+
+    init {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getApplication())
+    }
 
     // Division options from PDF
     val divisionOptions = listOf("Ayivu Division", "Central Division")
@@ -195,14 +215,6 @@ class IncidentReportViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-//    @RequiresApi(Build.VERSION_CODES.O)
-//    fun toggleDivisionDropdown() {
-//        _formState.update { it.copy(
-//            showDivisionDropdown = !it.showDivisionDropdown,
-//            showStreetDropdown = false,
-//            showIncidentTypeDropdown = false
-//        ) }
-//    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun toggleStreetDropdown() {
@@ -231,6 +243,7 @@ class IncidentReportViewModel(application: Application) : AndroidViewModel(appli
 //        ) }
 //    }
 
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     @RequiresApi(Build.VERSION_CODES.O)
     fun startLocationDetection() {
         _formState.update { it.copy(isLocationLoading = true) }
@@ -239,23 +252,23 @@ class IncidentReportViewModel(application: Application) : AndroidViewModel(appli
         detectLocation()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun detectLocation() {
-        // This is a placeholder function that you'll implement later
-        // with your actual location detection logic
-        viewModelScope.launch {
-            // Simulate a delay for location detection
-            kotlinx.coroutines.delay(1000)
-
-            // For now, just use placeholder values
-            updateLocation(
-                latitude = "0.2959",
-                longitude = "32.6122",
-                altitude = "1200",
-                accuracy = "5"
-            )
-        }
-    }
+//    @RequiresApi(Build.VERSION_CODES.O)
+//    private fun detectLocation() {
+//        // This is a placeholder function that you'll implement later
+//        // with your actual location detection logic
+//        viewModelScope.launch {
+//            // Simulate a delay for location detection
+//            kotlinx.coroutines.delay(1000)
+//
+//            // For now, just use placeholder values
+//            updateLocation(
+//                latitude = "0.2959",
+//                longitude = "32.6122",
+//                altitude = "1200",
+//                accuracy = "5"
+//            )
+//        }
+//    }
 
 //    @RequiresApi(Build.VERSION_CODES.O)
 //    fun submitForm() {
@@ -337,6 +350,170 @@ class IncidentReportViewModel(application: Application) : AndroidViewModel(appli
     suspend fun register(username: String, email: String, password: String, contact: String): Result<String> {
         return withContext(Dispatchers.IO) {
             repository.registerUser(username, email, password, contact)
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun detectLocation() {
+        val context = getApplication<Application>().applicationContext
+
+        // Check if we have location permissions
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // If we don't have permissions, update the state to show an error
+            _formState.update {
+                it.copy(
+                    isLocationLoading = false,
+                    errorMessage = "Location permissions not granted. Please grant location permissions in settings."
+                )
+            }
+            return
+        }
+
+        // Create a location request
+        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000)
+            .setWaitForAccurateLocation(true)
+            .setMinUpdateIntervalMillis(5000)
+            .setMaxUpdateDelayMillis(15000)
+            .build()
+
+        // Initialize location callback
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                locationResult.lastLocation?.let { location ->
+                    // Update with actual location data
+                    updateLocationWithGeocoding(location)
+
+                    // Remove location updates after getting location once
+                    fusedLocationClient.removeLocationUpdates(this)
+                    locationCallback = null
+                }
+            }
+        }
+
+        // Request location updates
+        locationCallback?.let {
+            try {
+                fusedLocationClient.requestLocationUpdates(
+                    locationRequest,
+                    it,
+                    context.mainLooper
+                )
+            } catch (e: Exception) {
+                _formState.update { state ->
+                    state.copy(
+                        isLocationLoading = false,
+                        errorMessage = "Failed to get location: ${e.message}"
+                    )
+                }
+            }
+        }
+
+        // Also try to get last known location for faster response
+        try {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    updateLocationWithGeocoding(location)
+                }
+            }.addOnFailureListener { e ->
+                _formState.update { it.copy(
+                    isLocationLoading = false,
+                    errorMessage = "Failed to get last location: ${e.message}"
+                ) }
+            }
+        } catch (e: Exception) {
+            _formState.update { it.copy(
+                isLocationLoading = false,
+                errorMessage = "Error accessing location: ${e.message}"
+            ) }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun updateLocationWithGeocoding(location: Location) {
+        viewModelScope.launch {
+            val context = getApplication<Application>().applicationContext
+            try {
+                // Update the location fields
+                val latitude = location.latitude.toString()
+                val longitude = location.longitude.toString()
+                val altitude = if (location.hasAltitude()) location.altitude.toString() else "Not available"
+                val accuracy = if (location.hasAccuracy()) location.accuracy.toString() else "Not available"
+
+                // Try to get city name using Geocoder
+                var cityName = ""
+
+                withContext(Dispatchers.IO) {
+                    try {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            Geocoder(context, Locale.getDefault()).getFromLocation(
+                                location.latitude,
+                                location.longitude,
+                                1
+                            ) { addresses ->
+                                if (addresses.isNotEmpty()) {
+                                    cityName = addresses[0].locality ?: ""
+                                }
+                            }
+                        } else {
+                            @Suppress("DEPRECATION")
+                            val addresses = Geocoder(context, Locale.getDefault()).getFromLocation(
+                                location.latitude,
+                                location.longitude,
+                                1
+                            )
+                            if (addresses != null && addresses.isNotEmpty()) {
+                                cityName = addresses[0].locality ?: ""
+                            }
+                        }
+                    } catch (e: Exception) {
+                        // Just ignore geocoding errors, we'll leave city blank
+                    }
+                }
+
+                // Update the form state with all location information
+                _formState.update {
+                    it.copy(
+                        latitude = latitude,
+                        longitude = longitude,
+                        altitude = altitude,
+                        accuracy = accuracy,
+                        city = cityName,
+                        isLocationLoading = false
+                    )
+                }
+            } catch (e: Exception) {
+                _formState.update {
+                    it.copy(
+                        isLocationLoading = false,
+                        errorMessage = "Error processing location: ${e.message}"
+                    )
+                }
+            }
+        }
+    }
+
+    // Add a cleanup method to remove location updates when ViewModel is cleared
+    override fun onCleared() {
+        super.onCleared()
+        locationCallback?.let {
+            fusedLocationClient.removeLocationUpdates(it)
         }
     }
 }

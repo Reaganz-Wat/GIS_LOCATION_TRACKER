@@ -34,7 +34,7 @@ class MainActivity : ComponentActivity() {
 fun AppNavigation() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "login") {
+    NavHost(navController = navController, startDestination = "maindashboard") {
         composable("login") { Login(navController) }
         composable("forgot password") { ForgotPassword(navController) }
         composable("signup") { SignUp(navController) }
