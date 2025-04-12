@@ -22,7 +22,8 @@ class IncidentRepository(private val context: Context) {
         .writeTimeout(30, TimeUnit.SECONDS)
         .build()
 
-    private val baseUrl = "http://192.168.100.235/geotrafficbackend/api.php" // Replace with your actual API base URL
+//    private val baseUrl = "http://192.168.100.235/geotrafficbackend/api.php" // Replace with your actual API base URL
+    private val baseUrl = "https://geotraffic.megwavetug.com"
 
     suspend fun submitIncidentReport(formState: IncidentFormState): Result<String> {
         return withContext(Dispatchers.IO) {

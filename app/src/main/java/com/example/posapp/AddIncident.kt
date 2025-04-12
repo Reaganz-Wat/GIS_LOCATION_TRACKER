@@ -53,7 +53,7 @@ fun IncidentReportScreen(navController: NavHostController) {
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
-                actions = {
+                navigationIcon = {
                     IconButton(onClick = {
                         navController.popBackStack()
                     }) {
