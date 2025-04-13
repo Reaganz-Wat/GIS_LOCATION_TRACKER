@@ -508,6 +508,7 @@
 
 package com.example.posapp
 
+import android.app.Activity
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -545,6 +546,7 @@ fun Dashboard(navHostController: NavHostController) {
     val surfaceColor = MaterialTheme.colorScheme.surface
     var showMenu by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val activity = (context as? Activity)
 
     Scaffold(
         topBar = {
@@ -590,18 +592,6 @@ fun Dashboard(navHostController: NavHostController) {
                     ) {
                         DropdownMenuItem(
                             text = {
-                                Text("Settings")
-                            },
-                            leadingIcon = {
-                                Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
-                            },
-                            onClick = {
-                                showMenu = false
-                                Toast.makeText(context, "Settings Screen", Toast.LENGTH_SHORT).show()
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = {
                                 Text("Exit")
                             },
                             leadingIcon = {
@@ -609,7 +599,7 @@ fun Dashboard(navHostController: NavHostController) {
                             },
                             onClick = {
                                 showMenu = false
-                                Toast.makeText(context, "Exiting App...", Toast.LENGTH_SHORT).show()
+                                activity?.finish()
                             }
                         )
                     }
@@ -707,7 +697,6 @@ fun Dashboard(navHostController: NavHostController) {
                     .clip(CircleShape)
                     .background(primaryColor)
                     .clickable {
-                        Toast.makeText(context, "Navigating to report screen", Toast.LENGTH_SHORT).show()
                         navHostController.navigate("addIncident")
                     },
                 contentAlignment = Alignment.Center
