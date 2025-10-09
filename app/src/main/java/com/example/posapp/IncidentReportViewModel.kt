@@ -85,13 +85,23 @@ class IncidentReportViewModel(application: Application) : AndroidViewModel(appli
     )
 
     // Incident types from PDF
+//    val incidentTypes = listOf(
+//        "Wrong Parking", "Congested roads", "Road Accident Incidence", "Reckless Driving incidence",
+//        "Road condition", "Offloading in non gazetted area", "Other"
+//    )
+
     val incidentTypes = listOf(
-        "Wrong Parking", "Congested roads", "Road Accident Incidence", "Reckless Driving incidence",
-        "Road condition", "Offloading in non gazetted area", "Other"
+        "Traffic Flow & Congestion",
+        "Road & Infrastructure Condition",
+        "Accidents & Safety",
+        "Public Transport & Mobility",
+        "Environmental & Hazards",
+        "Law & Order Issues",
+        "Other"
     )
 
     // List of Cities
-    val cities = listOf("Arua City", "Gulu City", "Kampala City")
+    val cities = listOf("Arua City")
 
     // Add update function for city
     @RequiresApi(Build.VERSION_CODES.O)

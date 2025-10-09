@@ -289,17 +289,6 @@ fun TrafficIncidentForm(
                 }
             }
 
-            // City section (static for Arua City)
-//            FormSection(title = "City") {
-//                OutlinedTextField(
-//                    value = "Arua City",
-//                    onValueChange = { /* Read-only */ },
-//                    readOnly = true,
-//                    modifier = Modifier.fillMaxWidth(),
-//                    leadingIcon = { Icon(imageVector = Icons.Default.LocationOn, contentDescription = null) }
-//                )
-//            }
-
             // Replace the static city section with a dropdown
             FormSection(title = "City") {
                 ExposedDropdownMenuBox(
