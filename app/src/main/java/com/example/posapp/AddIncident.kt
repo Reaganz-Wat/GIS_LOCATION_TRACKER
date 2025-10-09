@@ -2,6 +2,7 @@ package com.example.posapp
 
 import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.widget.Toast
@@ -32,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -92,16 +94,54 @@ fun TrafficIncidentForm(
     }
 
     // Location permission
+//    val locationPermissionLauncher = rememberLauncherForActivityResult(
+//        contract = ActivityResultContracts.RequestMultiplePermissions()
+//    ) { permissions ->
+//        val locationGranted = permissions.entries.all { it.value }
+//        if (locationGranted) {
+//            viewModel.startLocationDetection()
+//        } else {
+//            Toast.makeText(context, "Location permission denied", Toast.LENGTH_SHORT).show()
+//        }
+//    }
+
+    // Location permission
+//    val locationPermissionLauncher = rememberLauncherForActivityResult(
+//        contract = ActivityResultContracts.RequestMultiplePermissions()
+//    ) { permissions ->
+//        val locationGranted = permissions.entries.all { it.value }
+//        if (locationGranted) {
+//            viewModel.startLocationDetection(context) // Pass context if needed
+//        } else {
+//            Toast.makeText(context, "Location permission denied", Toast.LENGTH_SHORT).show()
+//        }
+//    }
+
+
+    // Location permission
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         val locationGranted = permissions.entries.all { it.value }
         if (locationGranted) {
-            viewModel.startLocationDetection()
+            // Add explicit permission check here
+            if (ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                viewModel.startLocationDetection(context)
+            }
         } else {
             Toast.makeText(context, "Location permission denied", Toast.LENGTH_SHORT).show()
         }
     }
+
+
 
     // Success dialog
     if (formState.isSuccess) {
