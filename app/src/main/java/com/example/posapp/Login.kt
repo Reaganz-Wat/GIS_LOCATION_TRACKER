@@ -114,7 +114,7 @@ fun LoginContent(modifier: Modifier = Modifier, navController: NavHostController
 
             // Login Header
             Text(
-                text = "Login to GEO TRAFFIC",
+                text = "Login to TDMIS",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
