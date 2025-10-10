@@ -22,8 +22,8 @@ class IncidentRepository(private val context: Context) {
         .writeTimeout(30, TimeUnit.SECONDS)
         .build()
 
-//    private val baseUrl = "http://192.168.100.235/geotrafficbackend/api.php" // Replace with your actual API base URL
-    private val baseUrl = "https://geotraffic.megwavetug.com"
+    private val baseUrl = "https://tdmis.app/geotrafficbackend/api.php" // Replace with your actual API base URL
+//    private val baseUrl = "https://geotraffic.megwavetug.com"
 
     suspend fun submitIncidentReport(formState: IncidentFormState): Result<String> {
         return withContext(Dispatchers.IO) {
@@ -39,19 +39,79 @@ class IncidentRepository(private val context: Context) {
 
                 // Execute request
                 val response = executeRequest(request)
+                val responseBody = response.body?.string() ?: ""
+
+                // Log the full response for debugging
+                Log.d("IncidentReport", "Response Code: ${response.code}")
+                Log.d("IncidentReport", "Response Body: $responseBody")
 
                 if (response.isSuccessful) {
-                    response.body?.let { Log.d("Body of the responsessss", it.string()) }
-                    Result.success("Incident reported successfully")
+                    // Parse the JSON response
+                    try {
+                        // Check if response contains error indicators
+                        when {
+                            responseBody.contains("\"error\"", ignoreCase = true) -> {
+                                Log.e("IncidentReport", "API returned error: $responseBody")
+                                Result.failure(Exception("Failed to submit incident. Please try again."))
+                            }
+                            responseBody.contains("\"success\":false", ignoreCase = true) -> {
+                                Log.e("IncidentReport", "API returned success:false: $responseBody")
+                                Result.failure(Exception("Failed to submit incident. Please try again."))
+                            }
+                            responseBody.contains("\"id\"") -> {
+                                // Extract ID from response for better logging
+                                val idPattern = "\"id\":(\\d+)".toRegex()
+                                val id = idPattern.find(responseBody)?.groupValues?.get(1)
+                                Log.i("IncidentReport", "Incident created successfully with ID: $id")
+                                Result.success("Incident reported successfully (ID: $id)")
+                            }
+                            else -> {
+                                Log.w("IncidentReport", "Unexpected response format: $responseBody")
+                                Result.success("Incident reported successfully")
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.e("IncidentReport", "Error parsing response: ${e.message}")
+                        Result.failure(Exception("Error processing server response: ${e.message}"))
+                    }
                 } else {
-                    val errorBody = response.body?.string() ?: "Unknown error occurred"
-                    Result.failure(Exception("API Error: ${response.code} - $errorBody"))
+                    Log.e("IncidentReport", "HTTP Error: ${response.code} - $responseBody")
+                    Result.failure(Exception("API Error: ${response.code} - $responseBody"))
                 }
             } catch (e: Exception) {
+                Log.e("IncidentReport", "Network Error: ${e.message}", e)
                 Result.failure(e)
             }
         }
     }
+
+//    suspend fun submitIncidentReport(formState: IncidentFormState): Result<String> {
+//        return withContext(Dispatchers.IO) {
+//            try {
+//                // Build multipart request
+//                val requestBody = buildMultipartRequest(formState)
+//
+//                // Create request
+//                val request = Request.Builder()
+//                    .url("$baseUrl")
+//                    .post(requestBody)
+//                    .build()
+//
+//                // Execute request
+//                val response = executeRequest(request)
+//
+//                if (response.isSuccessful) {
+//                    response.body?.let { Log.d("Body of the responsessss", it.string()) }
+//                    Result.success("Incident reported successfully")
+//                } else {
+//                    val errorBody = response.body?.string() ?: "Unknown error occurred"
+//                    Result.failure(Exception("API Error: ${response.code} - $errorBody"))
+//                }
+//            } catch (e: Exception) {
+//                Result.failure(e)
+//            }
+//        }
+//    }
 
     private fun buildMultipartRequest(formState: IncidentFormState): MultipartBody {
         val multipartBuilder = MultipartBody.Builder()
