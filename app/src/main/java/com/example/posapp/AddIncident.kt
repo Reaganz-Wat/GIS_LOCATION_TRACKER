@@ -94,31 +94,6 @@ fun TrafficIncidentForm(
     }
 
     // Location permission
-//    val locationPermissionLauncher = rememberLauncherForActivityResult(
-//        contract = ActivityResultContracts.RequestMultiplePermissions()
-//    ) { permissions ->
-//        val locationGranted = permissions.entries.all { it.value }
-//        if (locationGranted) {
-//            viewModel.startLocationDetection()
-//        } else {
-//            Toast.makeText(context, "Location permission denied", Toast.LENGTH_SHORT).show()
-//        }
-//    }
-
-    // Location permission
-//    val locationPermissionLauncher = rememberLauncherForActivityResult(
-//        contract = ActivityResultContracts.RequestMultiplePermissions()
-//    ) { permissions ->
-//        val locationGranted = permissions.entries.all { it.value }
-//        if (locationGranted) {
-//            viewModel.startLocationDetection(context) // Pass context if needed
-//        } else {
-//            Toast.makeText(context, "Location permission denied", Toast.LENGTH_SHORT).show()
-//        }
-//    }
-
-
-    // Location permission
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -180,368 +155,627 @@ fun TrafficIncidentForm(
         )
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
 
             // Form header
-            Text(
-                text = "Road Traffic Data Tool",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            Divider()
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Road Traffic Data Tool",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Report Traffic Incidents",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                    )
+                }
+            }
 
             // Date and time section
-            FormSection(title = "Time when the incident is reported") {
-                OutlinedTextField(
-                    value = formState.datetime,
-                    onValueChange = { viewModel.updateDatetime(it) },
-                    label = { Text("Date and Time (yyyy-MM-dd HH:mm)") },
-                    modifier = Modifier.fillMaxWidth(),
-                    leadingIcon = { Icon(Icons.Default.DateRange, contentDescription = null) }
-                )
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = "Time when the incident is reported",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    OutlinedTextField(
+                        value = formState.datetime,
+                        onValueChange = { viewModel.updateDatetime(it) },
+                        label = { Text("Date and Time") },
+                        placeholder = { Text("yyyy-MM-dd HH:mm") },
+                        modifier = Modifier.fillMaxWidth(),
+                        leadingIcon = { Icon(Icons.Default.DateRange, contentDescription = null) }
+                    )
+                }
             }
 
             // Photo upload section
-            FormSection(title = "Photo") {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .clickable { imagePickerLauncher.launch("image/*") },
-                    contentAlignment = Alignment.Center
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    if (formState.imageUri != null) {
-                        AsyncImage(
-                            model = formState.imageUri,
-                            contentDescription = "Selected image",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                    } else {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(R.drawable.baseline_cloud_upload_24),
-                                contentDescription = "Upload photo",
-                                modifier = Modifier.size(48.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    Text(
+                        text = "Photo",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .border(
+                                2.dp,
+                                MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                                RoundedCornerShape(12.dp)
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                "Click here to upload file (< 10MB)",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                }
-            }
-
-            // Location section
-            FormSection(title = "Location of the incident using GPS") {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    OutlinedTextField(
-                        value = formState.latitude,
-                        onValueChange = { viewModel.updateLatitude(it) },
-                        label = { Text("Latitude (°)") },
-                        modifier = Modifier.weight(1f),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    OutlinedTextField(
-                        value = formState.longitude,
-                        onValueChange = { viewModel.updateLongitude(it) },
-                        label = { Text("Longitude (°)") },
-                        modifier = Modifier.weight(1f),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    OutlinedTextField(
-                        value = formState.altitude,
-                        onValueChange = { viewModel.updateAltitude(it) },
-                        label = { Text("Altitude (m)") },
-                        modifier = Modifier.weight(1f),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    OutlinedTextField(
-                        value = formState.accuracy,
-                        onValueChange = { viewModel.updateAccuracy(it) },
-                        label = { Text("Accuracy (m)") },
-                        modifier = Modifier.weight(1f),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Button(
-                    onClick = {
-                        val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            arrayOf(
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_COARSE_LOCATION
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .clickable { imagePickerLauncher.launch("image/*") },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (formState.imageUri != null) {
+                            AsyncImage(
+                                model = formState.imageUri,
+                                contentDescription = "Selected image",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
                             )
                         } else {
-                            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(R.drawable.baseline_cloud_upload_24),
+                                    contentDescription = "Upload photo",
+                                    modifier = Modifier.size(56.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Text(
+                                    "Click to upload photo",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = FontWeight.Medium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
+                                    "Maximum file size: 10MB",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                )
+                            }
                         }
-                        locationPermissionLauncher.launch(permissions)
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !formState.isLocationLoading
+                    }
+                }
+            }
+
+            // GPS Location section
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    if (formState.isLocationLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            strokeWidth = 2.dp
+                    Text(
+                        text = "Location of the incident using GPS",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        OutlinedTextField(
+                            value = formState.latitude,
+                            onValueChange = { viewModel.updateLatitude(it) },
+                            label = { Text("Latitude (°)") },
+                            modifier = Modifier.weight(1f),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Detecting location...")
-                    } else {
-                        Icon(Icons.Default.LocationOn, contentDescription = null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Get Current Location")
+                        Spacer(modifier = Modifier.width(12.dp))
+                        OutlinedTextField(
+                            value = formState.longitude,
+                            onValueChange = { viewModel.updateLongitude(it) },
+                            label = { Text("Longitude (°)") },
+                            modifier = Modifier.weight(1f),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        OutlinedTextField(
+                            value = formState.altitude,
+                            onValueChange = { viewModel.updateAltitude(it) },
+                            label = { Text("Altitude (m)") },
+                            modifier = Modifier.weight(1f),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        OutlinedTextField(
+                            value = formState.accuracy,
+                            onValueChange = { viewModel.updateAccuracy(it) },
+                            label = { Text("Accuracy (m)") },
+                            modifier = Modifier.weight(1f),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        )
+                    }
+
+                    Button(
+                        onClick = {
+                            val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                arrayOf(
+                                    Manifest.permission.ACCESS_FINE_LOCATION,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION
+                                )
+                            } else {
+                                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+                            }
+                            locationPermissionLauncher.launch(permissions)
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !formState.isLocationLoading,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    ) {
+                        if (formState.isLocationLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                strokeWidth = 2.dp
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Detecting location...")
+                        } else {
+                            Icon(Icons.Default.LocationOn, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Get Current Location")
+                        }
                     }
                 }
             }
 
-            // Replace the static city section with a dropdown
-            FormSection(title = "City") {
-                ExposedDropdownMenuBox(
-                    expanded = formState.showCityDropdown,
-                    onExpandedChange = { viewModel.toggleCityDropdown() },
-                    modifier = Modifier.fillMaxWidth()
+            // City section
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    OutlinedTextField(
-                        value = formState.city,
-                        onValueChange = { },
-                        readOnly = true,
-                        label = { Text("Select City") },
-                        leadingIcon = { Icon(imageVector = Icons.Default.LocationOn, contentDescription = null) },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = formState.showCityDropdown) },
-                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .menuAnchor()
+                    Text(
+                        text = "City",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
                     )
-
-                    ExposedDropdownMenu(
+                    ExposedDropdownMenuBox(
                         expanded = formState.showCityDropdown,
-                        onDismissRequest = { viewModel.hideAllDropdowns() },
+                        onExpandedChange = { viewModel.toggleCityDropdown() },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        viewModel.cities.forEach { option ->
-                            DropdownMenuItem(
-                                text = { Text(option) },
-                                onClick = {
-                                    viewModel.updateCity(option)
-                                    viewModel.hideAllDropdowns()
-                                },
-                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                            )
+                        OutlinedTextField(
+                            value = formState.city,
+                            onValueChange = { },
+                            readOnly = true,
+                            label = { Text("Select City") },
+                            leadingIcon = { Icon(imageVector = Icons.Default.LocationOn, contentDescription = null) },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = formState.showCityDropdown) },
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor()
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = formState.showCityDropdown,
+                            onDismissRequest = { viewModel.hideAllDropdowns() },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            viewModel.cities.forEach { option ->
+                                DropdownMenuItem(
+                                    text = { Text(option) },
+                                    onClick = {
+                                        viewModel.updateCity(option)
+                                        viewModel.hideAllDropdowns()
+                                    },
+                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                )
+                            }
                         }
                     }
                 }
             }
 
-            // Division dropdown - FIXED IMPLEMENTATION
-            FormSection(title = "Division from where the Incident is reported from") {
-                ExposedDropdownMenuBox(
-                    expanded = formState.showDivisionDropdown,
-                    onExpandedChange = { viewModel.toggleDivisionDropdown() },
-                    modifier = Modifier.fillMaxWidth()
+            // Division section
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    OutlinedTextField(
-                        value = formState.division,
-                        onValueChange = { },
-                        readOnly = true,
-                        label = { Text("Select Division") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = formState.showDivisionDropdown) },
-                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .menuAnchor()
+                    Text(
+                        text = "Division from where the Incident is reported from",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
                     )
-
-                    ExposedDropdownMenu(
+                    ExposedDropdownMenuBox(
                         expanded = formState.showDivisionDropdown,
-                        onDismissRequest = { viewModel.hideAllDropdowns() },
+                        onExpandedChange = { viewModel.toggleDivisionDropdown() },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        viewModel.divisionOptions.forEach { option ->
-                            DropdownMenuItem(
-                                text = { Text(option) },
-                                onClick = {
-                                    viewModel.updateDivision(option)
-                                    viewModel.hideAllDropdowns()
-                                },
-                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                            )
+                        OutlinedTextField(
+                            value = formState.division,
+                            onValueChange = { },
+                            readOnly = true,
+                            label = { Text("Select Division") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = formState.showDivisionDropdown) },
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor()
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = formState.showDivisionDropdown,
+                            onDismissRequest = { viewModel.hideAllDropdowns() },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            viewModel.divisionOptions.forEach { option ->
+                                DropdownMenuItem(
+                                    text = { Text(option) },
+                                    onClick = {
+                                        viewModel.updateDivision(option)
+                                        viewModel.hideAllDropdowns()
+                                    },
+                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                )
+                            }
                         }
                     }
                 }
             }
 
-            // Ward field
-            FormSection(title = "Ward from where the Incident is reported from") {
-                OutlinedTextField(
-                    value = formState.ward,
-                    onValueChange = { viewModel.updateWard(it) },
-                    label = { Text("Enter Ward") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            // Cell field
-            FormSection(title = "Cell from where the Incident is reported from") {
-                OutlinedTextField(
-                    value = formState.cell,
-                    onValueChange = { viewModel.updateCell(it) },
-                    label = { Text("Enter Cell") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            // Street dropdown - FIXED IMPLEMENTATION
-            FormSection(title = "Street from where the Incident is reported from") {
-                ExposedDropdownMenuBox(
-                    expanded = formState.showStreetDropdown,
-                    onExpandedChange = { viewModel.toggleStreetDropdown() },
-                    modifier = Modifier.fillMaxWidth()
+            // Ward section
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    OutlinedTextField(
-                        value = formState.street,
-                        onValueChange = { },
-                        readOnly = true,
-                        label = { Text("Select Street") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = formState.showStreetDropdown) },
-                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .menuAnchor()
+                    Text(
+                        text = "Ward from where the Incident is reported from",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
                     )
+                    OutlinedTextField(
+                        value = formState.ward,
+                        onValueChange = { viewModel.updateWard(it) },
+                        label = { Text("Enter Ward") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
 
-                    ExposedDropdownMenu(
+            // Cell section
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = "Cell from where the Incident is reported from",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    OutlinedTextField(
+                        value = formState.cell,
+                        onValueChange = { viewModel.updateCell(it) },
+                        label = { Text("Enter Cell") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+
+            // Street section
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = "Street from where the Incident is reported from",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    ExposedDropdownMenuBox(
                         expanded = formState.showStreetDropdown,
-                        onDismissRequest = { viewModel.hideAllDropdowns() },
+                        onExpandedChange = { viewModel.toggleStreetDropdown() },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        viewModel.streetOptions.forEach { option ->
-                            DropdownMenuItem(
-                                text = { Text(option) },
-                                onClick = {
-                                    viewModel.updateStreet(option)
-                                    viewModel.hideAllDropdowns()
-                                },
-                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                            )
+                        OutlinedTextField(
+                            value = formState.street,
+                            onValueChange = { },
+                            readOnly = true,
+                            label = { Text("Select Street") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = formState.showStreetDropdown) },
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor()
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = formState.showStreetDropdown,
+                            onDismissRequest = { viewModel.hideAllDropdowns() },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            viewModel.streetOptions.forEach { option ->
+                                DropdownMenuItem(
+                                    text = { Text(option) },
+                                    onClick = {
+                                        viewModel.updateStreet(option)
+                                        viewModel.hideAllDropdowns()
+                                    },
+                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                )
+                            }
                         }
                     }
-                }
 
-                // Show "Other" field if "Others" is selected
-                if (formState.street == "Others") {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = formState.otherStreet,
-                        onValueChange = { viewModel.updateOtherStreet(it) },
-                        label = { Text("If other, specify") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    // Show "Other" field if "Others" is selected
+                    if (formState.street == "Others") {
+                        OutlinedTextField(
+                            value = formState.otherStreet,
+                            onValueChange = { viewModel.updateOtherStreet(it) },
+                            label = { Text("Specify other street") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
             }
 
-            // Incident type dropdown - FIXED IMPLEMENTATION
-            FormSection(title = "Nature of the problem/Incident observed") {
-                ExposedDropdownMenuBox(
-                    expanded = formState.showIncidentTypeDropdown,
-                    onExpandedChange = { viewModel.toggleIncidentTypeDropdown() },
-                    modifier = Modifier.fillMaxWidth()
+            // Incident Type section with 2-level dropdown
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+                    Text(
+                        text = "Nature of the problem/Incident observed",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    // Category Dropdown
+                    ExposedDropdownMenuBox(
+                        expanded = formState.showIncidentCategoryDropdown,
+                        onExpandedChange = { viewModel.toggleIncidentCategoryDropdown() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        OutlinedTextField(
+                            value = formState.incidentCategory,
+                            onValueChange = { },
+                            readOnly = true,
+                            label = { Text("Select Category") },
+                            placeholder = { Text("Choose incident category") },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(
+                                    expanded = formState.showIncidentCategoryDropdown
+                                )
+                            },
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor()
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = formState.showIncidentCategoryDropdown,
+                            onDismissRequest = { viewModel.hideAllDropdowns() },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            viewModel.incidentCategories.forEach { category ->
+                                DropdownMenuItem(
+                                    text = { Text(category) },
+                                    onClick = {
+                                        viewModel.updateIncidentCategory(category)
+                                        viewModel.hideAllDropdowns()
+                                    },
+                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                )
+                            }
+                        }
+                    }
+
+                    // Subcategory Dropdown - shown when category is selected and not "Other"
+                    if (formState.incidentCategory.isNotEmpty() && formState.incidentCategory != "Other") {
+                        ExposedDropdownMenuBox(
+                            expanded = formState.showIncidentSubcategoryDropdown,
+                            onExpandedChange = { viewModel.toggleIncidentSubcategoryDropdown() },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            OutlinedTextField(
+                                value = formState.incidentSubcategory,
+                                onValueChange = { },
+                                readOnly = true,
+                                label = { Text("Select Specific Issue") },
+                                placeholder = { Text("Choose the specific problem") },
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(
+                                        expanded = formState.showIncidentSubcategoryDropdown
+                                    )
+                                },
+                                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .menuAnchor()
+                            )
+
+                            ExposedDropdownMenu(
+                                expanded = formState.showIncidentSubcategoryDropdown,
+                                onDismissRequest = { viewModel.hideAllDropdowns() },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                viewModel.getSubcategoriesForCategory(formState.incidentCategory).forEach { subcategory ->
+                                    DropdownMenuItem(
+                                        text = { Text(subcategory) },
+                                        onClick = {
+                                            viewModel.updateIncidentSubcategory(subcategory)
+                                            viewModel.hideAllDropdowns()
+                                        },
+                                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // Show "Other" field if "Other" category is selected
+                    if (formState.incidentCategory == "Other") {
+                        OutlinedTextField(
+                            value = formState.otherIncidentType,
+                            onValueChange = { viewModel.updateOtherIncidentType(it) },
+                            label = { Text("Specify incident type") },
+                            placeholder = { Text("Describe the incident") },
+                            modifier = Modifier.fillMaxWidth(),
+                            minLines = 2
+                        )
+                    }
+                }
+            }
+
+            // Incident Details section
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = "Details of the problem or incident",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                     OutlinedTextField(
-                        value = formState.incidentType,
-                        onValueChange = { },
-                        readOnly = true,
-                        label = { Text("Select Incident Type") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = formState.showIncidentTypeDropdown) },
-                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                        value = formState.incidentDetails,
+                        onValueChange = { viewModel.updateIncidentDetails(it) },
+                        label = { Text("Enter incident details") },
+                        placeholder = { Text("Provide additional information") },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .menuAnchor()
-                    )
-
-                    ExposedDropdownMenu(
-                        expanded = formState.showIncidentTypeDropdown,
-                        onDismissRequest = { viewModel.hideAllDropdowns() },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        viewModel.incidentTypes.forEach { option ->
-                            DropdownMenuItem(
-                                text = { Text(option) },
-                                onClick = {
-                                    viewModel.updateIncidentType(option)
-                                    viewModel.hideAllDropdowns()
-                                },
-                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                            )
-                        }
-                    }
-                }
-
-                // Show "Other" field if "Other" is selected
-                if (formState.incidentType == "Other") {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = formState.otherIncidentType,
-                        onValueChange = { viewModel.updateOtherIncidentType(it) },
-                        label = { Text("If other, specify") },
-                        modifier = Modifier.fillMaxWidth()
+                            .height(140.dp),
+                        maxLines = 6
                     )
                 }
             }
 
-            // Incident details
-            FormSection(title = "Details of the problem or incident") {
-                OutlinedTextField(
-                    value = formState.incidentDetails,
-                    onValueChange = { viewModel.updateIncidentDetails(it) },
-                    label = { Text("Enter incident details") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(120.dp),
-                    maxLines = 5
-                )
-            }
-
+            // Submit Button
             Button(
                 onClick = { viewModel.submitForm() },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(5.dp),
-                enabled = !formState.isSubmitting
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(12.dp),
+                enabled = !formState.isSubmitting,
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
             ) {
                 if (formState.isSubmitting) {
                     CircularProgressIndicator(
@@ -549,51 +783,43 @@ fun TrafficIncidentForm(
                         color = MaterialTheme.colorScheme.onPrimary,
                         strokeWidth = 2.dp
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Submitting...")
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text("Submitting...", style = MaterialTheme.typography.titleMedium)
                 } else {
-                    Text("Submit")
+                    Icon(Icons.Default.Send, contentDescription = null)
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text("Submit Report", style = MaterialTheme.typography.titleMedium)
                 }
             }
 
             // Thank you message
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
+                modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
-                Text(
-                    text = "Thank you for using Muni University E-Citizen Traffic Data Reporting Platform to report traffic issues.",
+                Row(
                     modifier = Modifier.padding(16.dp),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                        modifier = Modifier.size(28.dp)
+                    )
+                    Text(
+                        text = "Thank you for using Muni University E-Citizen Traffic Data Reporting Platform to report traffic issues.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(72.dp)) // Space for the FAB
+            Spacer(modifier = Modifier.height(32.dp))
         }
-    }
-}
-
-@Composable
-fun FormSection(
-    title: String,
-    content: @Composable () -> Unit
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.primary
-        )
-        content()
     }
 }
