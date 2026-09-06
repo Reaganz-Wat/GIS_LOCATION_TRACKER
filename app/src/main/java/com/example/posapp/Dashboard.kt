@@ -43,7 +43,7 @@ fun Dashboard(navHostController: NavHostController) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.munilogo1),
+                            painter = painterResource(id = R.mipmap.ic_launcher_round),
                             contentDescription = "TDMIS Safety Logo",
                             modifier = Modifier
                                 .size(40.dp)
